@@ -2,6 +2,8 @@
 import subprocess
 import sys
 import shutil
+import readline  # noqa: F401 - imported for its side effect: enables proper
+                  # line editing (arrow keys, backspace, etc.) in input()
 from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
@@ -11,30 +13,48 @@ console = Console()
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOGO_PATH = SCRIPT_DIR / "assets" / "reticulum_logo.png"
+FLAT_LOGO_PATH = SCRIPT_DIR / "assets" / ".reticulum_logo_flat.png"
 
 
-def check_chafa():
+def ensure_dependencies():
     if shutil.which("chafa") is None:
         console.print("[yellow]chafa not found, installing...[/yellow]")
         subprocess.run(["sudo", "apt", "install", "-y", "chafa"], check=True)
+    try:
+        import PIL  # noqa: F401
+    except ImportError:
+        console.print("[yellow]Pillow not found, installing...[/yellow]")
+        subprocess.run(
+            ["pip3", "install", "pillow", "--break-system-packages", "--user"],
+            check=True,
+        )
+
+
+def flatten_logo():
+    """Pre-composite the transparent PNG onto solid black ourselves, so
+    chafa never has to guess how to handle transparency."""
+    from PIL import Image
+
+    img = Image.open(LOGO_PATH).convert("RGBA")
+    bg = Image.new("RGBA", img.size, (0, 0, 0, 255))
+    flat = Image.alpha_composite(bg, img).convert("RGB")
+    flat.save(FLAT_LOGO_PATH)
 
 
 def show_banner():
-    if not LOGO_PATH.exists():
-        console.print(f"[yellow](logo not found at {LOGO_PATH} - skipping)[/yellow]")
-        return
-
-    # size the logo relative to the real terminal width instead of small box
-    term_width = shutil.get_terminal_size().columns
-    render_width = min(term_width - 4, 36)
-    render_height = int(render_width * 0.5)
-
-    subprocess.run([
-        "chafa",
-        f"--size={render_width}x{render_height}",
-        "--symbols=block",   
-        str(LOGO_PATH),
-    ])
+    if LOGO_PATH.exists():
+        try:
+            flatten_logo()
+            subprocess.run([
+                "chafa",
+                "--size=32x16",
+                "--colors=full",  # explicit 24-bit color - stops chafa from
+                                   # guessing a limited palette, which is
+                                   # what caused wrong/tinted colors before
+                str(FLAT_LOGO_PATH),
+            ], check=True)
+        except Exception:
+            console.print("[yellow](logo render failed - continuing without it)[/yellow]")
 
     console.print("\n[bold cyan]Kairos - Reticulum Deployment Toolkit[/bold cyan]\n")
 
@@ -53,7 +73,7 @@ def run_script(script_name):
 
 
 def main():
-    check_chafa()
+    ensure_dependencies()
     show_banner()
     choice = show_menu()
 
