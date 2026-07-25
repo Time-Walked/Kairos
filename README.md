@@ -4,9 +4,9 @@
 
 ## What this project is:
 
-Kairos exists to make deploying Reticulum easy, for anyone, without asking them to trust anything they can't read in five minutes.
+Kairos exists to make deploying Reticulum easy, for anyone.
 
-It is a small set of scripts that automate the boring, error-prone parts of standing up a Reticulum node. Handles installing dependencies, writing a correct config, configuring optional interfaces, starting the service, so that the only hard part left is the part that actually matters: what you build on top of it.
+It is a small set of scripts that automate the boring parts of standing up a Reticulum node. Handles installing dependencies, writing a correct config, configuring optional interfaces, starting the service, so that the only hard part left is the part that actually matters: what you build on top of it.
 ## What's in the toolkit
 
 | Script                      | Purpose                                                                                                                                                   |
@@ -34,15 +34,16 @@ Open `kairos.conf` in any text editor. Every setting is off/blank by default —
 nano kairos.conf
 ```
 
-- **Local mesh only?** Leave everything as-is. This is the default, zero-config path.
+- **Local mesh only?** Leave everything as-is. 
 - **Want to connect to a VPS backbone?** Set `VPS_ENABLED=yes` and fill in `VPS_HOST`, `VPS_PORT`, and `VPS_NETWORK_NAME`.
-- **Have an RNode radio?** Set `RNODE_ENABLED=yes` and fill in `RNODE_PORT` (find it with `ls /dev/ttyUSB* /dev/ttyACM*`). The frequency/bandwidth/etc. defaults are already set to standard US 915MHz values — only change them if you know you need to.
-- **Standing up a server/backbone node instead?** Fill in `SERVER_LISTEN_IP` and `SERVER_LISTEN_PORT` under the server section. These are left blank on purpose — `install_server.sh` will refuse to run until you set them yourself.
+- **Have an RNode radio?** Set `RNODE_ENABLED=yes` and fill in `RNODE_PORT` (find it with `ls /dev/ttyUSB* /dev/ttyACM*`). The frequency/bandwidth/etc. 
+- **Standing up a server/backbone node instead?** Fill in `SERVER_LISTEN_IP` and `SERVER_LISTEN_PORT` under the server section. 
+- **Need to add a new interface?** Just run the "add an interface" tool from the launcher! 
 
 ### 3. Run the launcher
 
 ```bash
-python3 launcher.py
+./deploy.sh
 ```
 
 You'll get a menu:
@@ -50,17 +51,19 @@ You'll get a menu:
 ```
 1  Client install
 2  Server install
-3  Exit
+3  Add an interface
+4. Exit
 ```
 
-- **Client install** — turns this machine into a Reticulum node using whatever you set in `kairos.conf`. Installs `rnsd` and `nomadnet`, writes a Reticulum config, starts it as a systemd service that survives reboot and logout.
-- **Server install** — turns this machine into a transport/backbone node others can connect to. Will ask for explicit confirmation before opening any firewall port.
+- **Client install:** turns this machine into a Reticulum node using whatever you set in `kairos.conf`. Installs `rnsd` and `nomadnet`, writes a Reticulum config, starts it as a systemd service that survives reboot and logout.
+- **Server install:** turns this machine into a transport/backbone node others can connect to. Will ask for explicit confirmation before opening any firewall port.
 
 You can also skip the menu and run either script directly:
 
 ```bash
 ./install_client.sh
 ./install_server.sh
+./add_interface.sh
 ```
 
 ### 4. Check it's running
@@ -79,7 +82,7 @@ This stops and disables the service, removes installed packages, and cleans up y
 
 ### Re-running / reconfiguring
 
-Every install script here is safe to re-run. Change something in `kairos.conf` and run the install script again — your existing config gets backed up (timestamped, never overwritten blind) before the new one is written.
+Every install script here is safe to re-run. Change something in `kairos.conf` and run the install script again, your existing config gets backed up (timestamped, never overwritten blind) before the new one is written.
 
 **One thing worth knowing:** if `rnsd` is already running when you change `kairos.conf` and re-run the install script, the new config is written to disk but the running service won't pick it up automatically. Restart it to apply changes:
 
@@ -113,9 +116,7 @@ KAIROS stands on the shoulders of:
 
 **Mark Qvist ([@markqvist](https://github.com/markqvist))** - Creator of Reticulum, RNode, Nomadnet, LXMF. This project would not exist without Mark's foundational work on the protocol and ecosystem.
 
-**Liam Cottle ([@liamcottle](https://github.com/liamcottle))** - Creator of MeshChat web interface, providing an accessible UI for Reticulum messaging.
-
-**KAIROS is integration work** - taking excellent FOSS tools and making them deployable by communities who need resilient communications.
+**KAIROS is automation work,** taking excellent FOSS tools and making them deployable by communities who need resilient communications.
 
 ---
 
