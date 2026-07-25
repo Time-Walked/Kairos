@@ -4,7 +4,7 @@
 
 ## What this project is:
 
-Kairos exists to make deploying Reticulum easy, for anyone.
+Kairos exists to make deploying Reticulum easy for anyone.
 
 It is a small set of scripts that automate the boring parts of standing up a Reticulum node. Handles installing dependencies, writing a correct config, configuring optional interfaces, starting the service, so that the only hard part left is the part that actually matters: what you build on top of it.
 ## What's in the toolkit
@@ -14,7 +14,8 @@ It is a small set of scripts that automate the boring parts of standing up a Ret
 | `deploy.sh` / `launcher.py` | Interactive menu. pick a path, it runs the right script                                                                                                   |
 | `install_client.sh`         | Turns a Debian/Ubuntu machine into a Reticulum client node. Local mesh always on. VPS backbone and RNode radio are optional, config driven add-ons        |
 | `install_server.sh`         | Stands up a Reticulum transport/backbone node. Good for relaying traffic for others, listens for incoming connections. Asks before touching your firewall |
-| `uninstall_client.sh`       | Cleanly removes what `install_client.sh` installed                                                                                                        |
+| `uninstall_client.sh`       | Cleanly removes what the installers added                                                                                                                 |
+| `add_interface.sh`          | Simply add a new interface to your reticulum config                                                                                                       |
 | `kairos.conf`               | The single source of truth for  any node configuration                                                                                                    |
 
 ## How to Use
@@ -22,7 +23,7 @@ It is a small set of scripts that automate the boring parts of standing up a Ret
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/jackcox15/Kairos.git
+git clone https://github.com/jackcox15/Kairos
 cd Kairos
 ```
 
