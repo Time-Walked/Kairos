@@ -2,8 +2,7 @@
 import subprocess
 import sys
 import shutil
-import readline  # noqa: F401 - imported for its side effect: enables proper
-                  # line editing (arrow keys, backspace, etc.) in input()
+import readline
 from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
@@ -31,8 +30,6 @@ def ensure_dependencies():
 
 
 def flatten_logo():
-    """Pre-composite the transparent PNG onto solid black ourselves, so
-    chafa never has to guess how to handle transparency."""
     from PIL import Image
 
     img = Image.open(LOGO_PATH).convert("RGBA")
@@ -48,9 +45,7 @@ def show_banner():
             subprocess.run([
                 "chafa",
                 "--size=32x16",
-                "--colors=full",  # explicit 24-bit color - stops chafa from
-                                   # guessing a limited palette, which is
-                                   # what caused wrong/tinted colors before
+                "--colors=full",
                 str(FLAT_LOGO_PATH),
             ], check=True)
         except Exception:
