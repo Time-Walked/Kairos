@@ -19,7 +19,7 @@ ensure_rich() {
 main() {
     ensure_python
     ensure_rich
-    exec python3 "$(dirname "$0")/launcher.py"
+    exec python3 "$(dirname "$0")/installers/launcher.py"
 }
 
 main "$@"
