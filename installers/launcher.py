@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 import subprocess
 import sys
-import readline  # noqa: F401 - enables proper line editing (arrow keys,
-                  # backspace) in input(), otherwise arrow keys print raw
-                  # escape codes into the prompt
+import readline
 from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
@@ -41,7 +39,7 @@ def main():
     elif choice == "2":
         run_script("install_server.sh")
     elif choice == "3":
-        run_script("add_interface.sh")
+        run_script("../utilities/add_interface.sh")
     else:
         console.print("[#7d5ba6]Exiting.[/#7d5ba6]")
         sys.exit(0)
