@@ -24,15 +24,15 @@ def show_banner():
         console.print(f"[yellow](logo not found at {LOGO_PATH} - skipping)[/yellow]")
         return
 
-    # size the logo relative to the real terminal width instead of a
+    # size the logo relative to the real terminal width instead of small box
     term_width = shutil.get_terminal_size().columns
-    render_width = min(term_width - 4, 60)  # cap so it doesn't get huge on wide terminals
-    render_height = int(render_width * 0.5)  # roughly square-ish, chars are ~2x taller than wide
+    render_width = min(term_width - 4, 36)
+    render_height = int(render_width * 0.5)
 
     subprocess.run([
         "chafa",
         f"--size={render_width}x{render_height}",
-        "--symbols=block",   # denser blocks read cleaner than the default mixed symbol set
+        "--symbols=block",   
         str(LOGO_PATH),
     ])
 
