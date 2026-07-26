@@ -90,6 +90,9 @@ add_rnode_interface() {
     RNODE_SPREADINGFACTOR="${RNODE_SPREADINGFACTOR:-8}"
     read -rp "Coding rate [5]: " RNODE_CODINGRATE
     RNODE_CODINGRATE="${RNODE_CODINGRATE:-5}"
+    read -rp "Network name (leave blank if none): " RNODE_NETWORK_NAME
+    read -rp "Passphrase (leave blank if none): " RNODE_PASSPHRASE
+    read -rp "Mode [full/boundary/gateway/access_point, leave blank for full]: " RNODE_MODE
 
     cat >> "$RNSD_CONFIG" << EOF
 
@@ -103,6 +106,16 @@ add_rnode_interface() {
     spreadingfactor = $RNODE_SPREADINGFACTOR
     codingrate = $RNODE_CODINGRATE
 EOF
+
+    if [ -n "$RNODE_NETWORK_NAME" ]; then
+        echo "    network_name = $RNODE_NETWORK_NAME" >> "$RNSD_CONFIG"
+    fi
+    if [ -n "$RNODE_PASSPHRASE" ]; then
+        echo "    passphrase = $RNODE_PASSPHRASE" >> "$RNSD_CONFIG"
+    fi
+    if [ -n "$RNODE_MODE" ]; then
+        echo "    mode = $RNODE_MODE" >> "$RNSD_CONFIG"
+    fi
 }
 
 add_server_interface() {
