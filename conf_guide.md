@@ -28,7 +28,7 @@
 
 ---
 
-## Section by Section
+## Help with basic setups: 
 
 ### VPS backbone
 
