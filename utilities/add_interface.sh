@@ -64,7 +64,7 @@ add_vps_interface() {
 
   [[$IFACE_NAME]]
     type = TCPClientInterface
-    interface_enabled = True
+    enabled = Yes
     target_host = $VPS_HOST
     target_port = $VPS_PORT
     network_name = $VPS_NETWORK_NAME
@@ -90,15 +90,15 @@ add_rnode_interface() {
     RNODE_SPREADINGFACTOR="${RNODE_SPREADINGFACTOR:-8}"
     read -rp "Coding rate [5]: " RNODE_CODINGRATE
     RNODE_CODINGRATE="${RNODE_CODINGRATE:-5}"
-    read -rp "Network name (leave blank if none): " RNODE_NETWORK_NAME
-    read -rp "Passphrase (leave blank if none): " RNODE_PASSPHRASE
+    read -rp "Network name (IFAC, leave blank if none): " RNODE_NETWORK_NAME
+    read -rp "Passphrase (IFAC, leave blank if none): " RNODE_PASSPHRASE
     read -rp "Mode [full/boundary/gateway/access_point, leave blank for full]: " RNODE_MODE
 
     cat >> "$RNSD_CONFIG" << EOF
 
   [[$IFACE_NAME]]
     type = RNodeInterface
-    interface_enabled = True
+    enabled = Yes
     port = $RNODE_PORT
     frequency = $RNODE_FREQUENCY
     bandwidth = $RNODE_BANDWIDTH
@@ -111,7 +111,7 @@ EOF
         echo "    network_name = $RNODE_NETWORK_NAME" >> "$RNSD_CONFIG"
     fi
     if [ -n "$RNODE_PASSPHRASE" ]; then
-        echo "    passphrase = $RNODE_PASSPHRASE" >> "$RNSD_CONFIG"
+        echo "    passphrase = \"$RNODE_PASSPHRASE\"" >> "$RNSD_CONFIG"
     fi
     if [ -n "$RNODE_MODE" ]; then
         echo "    mode = $RNODE_MODE" >> "$RNSD_CONFIG"
@@ -131,7 +131,7 @@ add_server_interface() {
 
   [[$IFACE_NAME]]
     type = TCPServerInterface
-    interface_enabled = True
+    enabled = Yes
     listen_ip = $SERVER_LISTEN_IP
     listen_port = $SERVER_LISTEN_PORT
 EOF
