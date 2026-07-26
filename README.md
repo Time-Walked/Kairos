@@ -23,7 +23,7 @@ It is a small set of scripts that automate the boring parts of standing up a Ret
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/jackcox15/Kairos
+git clone https://github.com/Time-Walked/Kairos
 cd Kairos
 ```
 
