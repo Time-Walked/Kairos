@@ -1,0 +1,134 @@
+# kairos.conf guide
+
+`kairos.conf` is the single file you edit to tell the installer what kind of node you're building. Nothing turns on unless you explicitly enable it, every section defaults to off/blank until you set it.
+
+---
+
+## Quick Reference
+
+| Field                   | What it does                                           | Values                                           | Required for               |
+| ----------------------- | ------------------------------------------------------ | ------------------------------------------------ | -------------------------- |
+| `VPS_ENABLED`           | Connects this node to a VPS backbone over the internet | `yes` / `no`                                     | Client                     |
+| `VPS_HOST`              | Address of your VPS                                    | hostname or IP                                   | VPS_ENABLED=yes            |
+| `VPS_PORT`              | Port your VPS is listening on                          | TCP/UDP Port #                                   | VPS_ENABLED=yes            |
+| `VPS_NETWORK_NAME`      | Shared name that identifies this private link          | your network's name                              | VPS_ENABLED=yes            |
+| `VPS_PASSPHRASE`        | Shared secret for the VPS link                         | your network's password                          | optional                   |
+| `SERVER_LISTEN_IP`      | IP this machine listens on for incoming connections    | usually `0.0.0.0` or define your own!            | Server only                |
+| `SERVER_LISTEN_PORT`    | Port this machine listens on                           | TCP/UDP Port #                                   | Server only                |
+| `RNODE_ENABLED`         | Connects a LoRa radio (RNode) to this node             | `yes` / `no`                                     | Client, required for Relay |
+| `RNODE_PORT`            | The USB device path for your RNode                     | e.g. `/dev/ttyUSB0`                              | RNODE_ENABLED=yes          |
+| `RNODE_FREQUENCY`       | Radio frequency in Hz                                  | e.g. `915000000`                                 | RNODE_ENABLED=yes          |
+| `RNODE_BANDWIDTH`       | Radio channel bandwidth in Hz                          | e.g. `125000`                                    | RNODE_ENABLED=yes          |
+| `RNODE_TXPOWER`         | Transmit power in dBm                                  | e.g. `17`                                        | RNODE_ENABLED=yes          |
+| `RNODE_SPREADINGFACTOR` | LoRa spreading factor                                  | `7`–`12`                                         | RNODE_ENABLED=yes          |
+| `RNODE_CODINGRATE`      | LoRa error-correction coding rate                      | `5`–`8`                                          | RNODE_ENABLED=yes          |
+| `RNODE_NETWORK_NAME`    | Private network name for this radio                    | your RNode's network name                        | optional                   |
+| `RNODE_PASSPHRASE`      | Shared secret for this radio                           | your RNode's network passphrase                  | optional                   |
+| `RNODE_MODE`            | How this radio handles announce traffic                | `full` / `boundary` / `gateway` / `access_point` | optional                   |
+
+---
+
+## Section by Section
+
+### VPS backbone
+
+Connects your node to a VPS server over the internet. This is how your local mesh reaches other cities, or the wider network, without needing its own radio hop the whole way. `VPS_ENABLED=no` if this node is LoRa/local only/mesh
+
+- **`VPS_NETWORK_NAME`** and **`VPS_PASSPHRASE`** together act like a shared password for this specific link. Both sides (you and the VPS) need to match, or the connection won't trust each other.
+
+### Server settings
+
+Only used if you're running `install_server.sh,` this turns your server into the VPS backbone that other people's `VPS_HOST` points at. Leave blank if you're not hosting a backbone yourself.
+
+### RNode (LoRa radio)
+
+Everything under this section configures your physical LoRa radio.
+
+- **`RNODE_PORT:`** find it with `ls /dev/ttyUSB* /dev/ttyACM*` while the radio is plugged in.
+- **`RNODE_FREQUENCY` / `BANDWIDTH` / `SPREADINGFACTOR` / `CODINGRATE:`** these four numbers together define the "channel" your radio talks on. **Every radio that needs to hear each other must match all four exactly.** If even one is different, the radios are on different channels and simply won't hear one another. The defaults in this file are standard US 915MHz settings and are safe to leave as-is unless you are located somewhere else!
+
+### `RNODE_NETWORK_NAME` and `RNODE_PASSPHRASE` (IFAC)
+
+This is called **IFAC** (Interface Access Code). Think of it as a Wi-Fi password, but for your LoRa channel instead of a wireless network.
+
+Without it: anyone else running a radio with the same frequency/bandwidth/SF/CR settings nearby can potentially exchange traffic with your mesh, even if they didn't mean to and aren't part of your project.
+
+With it: only radios configured with the *exact same* `RNODE_NETWORK_NAME` and `RNODE_PASSPHRASE` will exchange traffic with yours. This is what makes your deployment an actual private network, instead of just a coincidence of matching radio settings.
+
+**Both fields are optional but must match exactly on every radio you want talking to each other.** Leave both blank if you're fine being open.
+
+### `RNODE_MODE`
+
+Controls how this interface handles "announce" traffic. The background chatter nodes use to tell the network they exist and how to reach them. Leave blank unless you have a specific reason; blank means `full`, which is correct for most nodes.
+
+| Value             | Use it when...                                                                                                                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `full` (default)  | This is a normal node. Client, or a pure LoRa-to-LoRa relay with no internet uplink.                                                                                                             |
+| `boundary`        | This interface bridges to a *different kind* of network (e.g. a fast VPS/internet uplink feeding a slower LoRa mesh). Stops internet side announce traffic from flooding your radio spectrum.   |
+| `gateway`         | This radio serves other local LoRa clients and you want them to discover a path out through this node.                                                                                          |
+| `access_point`    | This radio mostly sits idle and expects occasional, short lived client connections rather than constant mesh traffic.                                                                           |
+
+---
+
+## Example Configs
+
+### 1. Basic client with no radio, connects to a VPS only
+
+```properties
+VPS_ENABLED=yes
+VPS_HOST="my.example.com"
+VPS_PORT="4242"
+VPS_NETWORK_NAME="mynet"
+VPS_PASSPHRASE="reticulum"
+
+RNODE_ENABLED=no
+```
+
+### 2. Home node VPS uplink + local LoRa radio, IFAC protected
+
+```properties
+VPS_ENABLED=yes
+VPS_HOST="my.example.com"
+VPS_PORT="4242"
+VPS_NETWORK_NAME="mynet"
+VPS_PASSPHRASE="reticulum"
+
+RNODE_ENABLED=yes
+RNODE_PORT="/dev/ttyACM0"
+RNODE_FREQUENCY=915000000
+RNODE_BANDWIDTH=125000
+RNODE_TXPOWER=17
+RNODE_SPREADINGFACTOR=8
+RNODE_CODINGRATE=5
+RNODE_NETWORK_NAME="my-radio"
+RNODE_PASSPHRASE="changeme-radio"
+RNODE_MODE="gateway"
+```
+
+### 3. Field relay (TNC) radio only, no VPS, must match radio settings above
+
+```properties
+VPS_ENABLED=no
+
+RNODE_ENABLED=yes
+RNODE_PORT="/dev/ttyUSB0"
+RNODE_FREQUENCY=915000000
+RNODE_BANDWIDTH=125000
+RNODE_TXPOWER=17
+RNODE_SPREADINGFACTOR=8
+RNODE_CODINGRATE=5
+RNODE_NETWORK_NAME="my-radio"
+RNODE_PASSPHRASE="changeme-radio"
+RNODE_MODE="full"
+```
+
+> Run this one through `install_relay.sh` (option 3 in `deploy.sh`), not `install_client.sh` a relay needs `enable_transport` on, which only the relay installer sets!
+
+### 4. Backbone server hosts the VPS other nodes connect to
+
+```properties
+SERVER_LISTEN_IP="0.0.0.0"
+SERVER_LISTEN_PORT="4242"
+```
+
+Run this one through `install_server.sh` (option 2 in `deploy.sh`).
