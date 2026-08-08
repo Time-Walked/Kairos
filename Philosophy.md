@@ -43,4 +43,4 @@ Put it together and you get a network that:
 
 ---
 
-_This explaination leans on two real sources if you want to go deeper: the [Reticulum Manual](https://reticulum.network/manual/index.html) for the technicals, and the [Zen of Reticulum](https://reticulum.network/manual/zen.html) for the philosophy behind why it's built this way. I highly encourage you read these to fully understand Reticulum. 
+This explaination leans on two real sources if you want to go deeper: the [Reticulum Manual](https://reticulum.network/manual/index.html) for the technicals, and the [Zen of Reticulum](https://reticulum.network/manual/zen.html) for the philosophy behind why it's built this way. I highly encourage you read these to fully understand Reticulum. 
