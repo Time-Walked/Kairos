@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -eo pipefail
 
 RNSD_CONFIG="$HOME/.reticulum/config"
 LOCAL_BIN="$HOME/.local/bin"
