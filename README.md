@@ -29,10 +29,10 @@ cd Kairos
 
 ### 2. Configure your node
 
-Open `kairos.conf` in any text editor. Every setting is off/blank by default — nothing gets enabled without you explicitly turning it on.
+Open `kairos.conf` in any text editor. Every setting is off/blank by default. nothing gets enabled without you explicitly turning it on.
 
 ```bash
-nano kairos.conf
+nano /Kairos/installers/kairos.conf
 ```
 
 - **Local mesh only?** Leave everything as-is. 
