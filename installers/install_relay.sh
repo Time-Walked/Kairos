@@ -5,6 +5,8 @@ RNSD_CONFIG="$HOME/.reticulum/config"
 LOCAL_BIN="$HOME/.local/bin"
 CONFIG_FILE="$(dirname "$0")/kairos.conf"
 
+source "$(dirname "$0")/lib/interfaces.sh"
+
 load_config() {
     if [ -f "$CONFIG_FILE" ]; then
         echo "Loading config from $CONFIG_FILE"
@@ -82,27 +84,11 @@ setup_reticulum() {
   loglevel = 4
 
 [interfaces]
-
-  [[RNode Interface]]
-    type = RNodeInterface
-    interface_enabled = True
-    port = $RNODE_PORT
-    frequency = $RNODE_FREQUENCY
-    bandwidth = $RNODE_BANDWIDTH
-    txpower = $RNODE_TXPOWER
-    spreadingfactor = $RNODE_SPREADINGFACTOR
-    codingrate = $RNODE_CODINGRATE
 EOF
 
-    if [ -n "$RNODE_NETWORK_NAME" ]; then
-        echo "    network_name = $RNODE_NETWORK_NAME" >> "$RNSD_CONFIG"
-    fi
-    if [ -n "$RNODE_PASSPHRASE" ]; then
-        echo "    passphrase = $RNODE_PASSPHRASE" >> "$RNSD_CONFIG"
-    fi
-    if [ -n "$RNODE_MODE" ]; then
-        echo "    mode = $RNODE_MODE" >> "$RNSD_CONFIG"
-    fi
+    # relay's whole purpose is the RNode radio, so this is the
+    # only interface type a relay ever writes
+    write_rnode_interface
 
     chmod 600 "$RNSD_CONFIG"
     echo "Wrote new config to $RNSD_CONFIG (permissions locked to owner only)"

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-
 # Functions / Vars
-
 RNSD_CONFIG="$HOME/.reticulum/config"
 LOCAL_BIN="$HOME/.local/bin"
 CONFIG_FILE="$(dirname "$0")/kairos.conf"
+
+source "$(dirname "$0")/lib/interfaces.sh"
 
 #load in kairos.conf based on user's setup 
 load_config() {
@@ -14,7 +14,7 @@ load_config() {
         echo "Loading config from $CONFIG_FILE"
         source "$CONFIG_FILE"
     else
-        echo "No config file found at $CONFIG_FILE, using defaults."
+        echo "No config file found at $CONFIG_FILE, using defaults"
         VPS_ENABLED="no"
         RNODE_ENABLED="no"
     fi
@@ -111,51 +111,9 @@ setup_reticulum() {
     enabled = Yes
 EOF
 
-    # only add a VPS interface block if added in via kairos.conf
-    if [ "$VPS_ENABLED" = "yes" ]; then
-        cat >> "$RNSD_CONFIG" << EOF
-
-  [[VPS_Uplink]]
-    type = TCPClientInterface
-    interface_enabled = True
-    target_host = $VPS_HOST
-    target_port = $VPS_PORT
-    network_name = $VPS_NETWORK_NAME
-EOF
-        if [ -n "$VPS_PASSPHRASE" ]; then
-            echo "    passphrase = $VPS_PASSPHRASE" >> "$RNSD_CONFIG"
-        fi
-        echo "VPS backbone interface added (host: $VPS_HOST)"
-    else
-        echo "VPS backbone not enabled!"
-    fi
-
-    if [ "$RNODE_ENABLED" = "yes" ]; then
-        cat >> "$RNSD_CONFIG" << EOF
-
-  [[RNode Interface]]
-    type = RNodeInterface
-    interface_enabled = True
-    port = $RNODE_PORT
-    frequency = $RNODE_FREQUENCY
-    bandwidth = $RNODE_BANDWIDTH
-    txpower = $RNODE_TXPOWER
-    spreadingfactor = $RNODE_SPREADINGFACTOR
-    codingrate = $RNODE_CODINGRATE
-EOF
-        if [ -n "$RNODE_NETWORK_NAME" ]; then
-            echo "    network_name = $RNODE_NETWORK_NAME" >> "$RNSD_CONFIG"
-        fi
-        if [ -n "$RNODE_PASSPHRASE" ]; then
-            echo "    passphrase = $RNODE_PASSPHRASE" >> "$RNSD_CONFIG"
-        fi
-        if [ -n "$RNODE_MODE" ]; then
-            echo "    mode = $RNODE_MODE" >> "$RNSD_CONFIG"
-        fi
-        echo "RNode interface added (port: $RNODE_PORT)"
-    else
-        echo "RNode not enabled!"
-    fi
+    # each function checks its own kairos.conf ENABLED flag
+    write_vps_interface
+    write_rnode_interface
 
     chmod 600 "$RNSD_CONFIG"
     echo "Wrote new config to $RNSD_CONFIG (permissions locked to owner only)"

@@ -5,6 +5,8 @@ RNSD_CONFIG="$HOME/.reticulum/config"
 LOCAL_BIN="$HOME/.local/bin"
 CONFIG_FILE="$(dirname "$0")/kairos.conf"
 
+source "$(dirname "$0")/lib/interfaces.sh"
+
 load_config() {
     if [ -f "$CONFIG_FILE" ]; then
         echo "Loading config from $CONFIG_FILE"
@@ -15,7 +17,6 @@ load_config() {
         SERVER_LISTEN_PORT=""
     fi
 }
-
 
 check_requirements() {
     case ":$PATH:" in
@@ -84,13 +85,9 @@ setup_reticulum() {
   loglevel = 4
 
 [interfaces]
-
-  [[TCP Server Interface]]
-    type = TCPServerInterface
-    interface_enabled = True
-    listen_ip = $SERVER_LISTEN_IP
-    listen_port = $SERVER_LISTEN_PORT
 EOF
+
+    write_server_interface
 
     chmod 600 "$RNSD_CONFIG"
     echo "Wrote new config to $RNSD_CONFIG (permissions locked to owner only)"
